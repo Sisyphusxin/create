@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 GitHub 主页</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f6f8fa;
+            color: #24292f;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            max-width: 900px;
+            margin: 5rem auto;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%; /* 强制正圆形显示 */
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 1px #d1d9e0;
+            margin-bottom: 1rem;
+            object-fit: cover; /* 保证图片填充圆形且不变形 */
+        }
+
+        .username {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .bio {
+            color: #656d76;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 1.1rem;
+        }
+
+        .links a {
+            color: #0969da;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .links a:hover {
+            color: #0550a0;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .username {
+                font-size: 1.6rem;
+            }
+            body {
+                margin: 3rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <!-- 替换为你提供的图片链接，CSS已确保正圆形显示 -->
+        <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/3578d8c23d0542378ef391546d8a044c.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202604272016110F82BD2B8B6A75A09D49&rrcfp=8a172a1a&x-expires=1777896971&x-signature=nqWI3GIB1UXcsLFXOVwZAEal8g0%3D" alt="头像" class="avatar">
+        <h1 class="username">Sisyphusxin</h1>
+        <p class="bio">热爱创造，持续学习，持续分享</p>
+        <div class="links">
+            <a href="mailto:amelieyoung@qq.com">amelieyoung@qq.com</a>
+        </div>
+    </div>
+</body>
+</html>
