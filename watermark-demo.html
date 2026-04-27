@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>设置水印 · Demo</title>
+  <style>
+    :root {
+      --primary: #1677ff;
+      --text-title: #333333;
+      --text-body: #666666;
+      --text-muted: #999999;
+      --border: #d9d9d9;
+      --radius: 8px;
+      --shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.06);
+      --vip-gold: #d4a012;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #f0f5ff 0%, #e6f4ff 50%, #f5f5f5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .page-actions {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+
+    .btn-open {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-open:hover {
+      filter: brightness(1.05);
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .backdrop.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      position: relative;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-title);
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      margin: -8px -8px 0 0;
+    }
+
+    .btn-icon:hover {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-body);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-body);
+      letter-spacing: 0.02em;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin: 0 0 12px;
+    }
+
+    .section-title-row .section-title {
+      margin: 0;
+    }
+
+    .help-tip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .help-tip-btn {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: #fafafa;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      line-height: 1;
+      cursor: help;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .help-tip-btn:hover,
+    .help-tip-btn:focus-visible {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #fff;
+      outline: none;
+    }
+
+    .help-tip-btn:focus-visible {
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+    }
+
+    .help-tip-text {
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--text-body);
+      white-space: nowrap;
+      max-width: min(380px, 72vw);
+      padding: 6px 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 20;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+    }
+
+    .help-tip-wrap:hover .help-tip-text,
+    .help-tip-wrap:focus-within .help-tip-text {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .row-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .row-label:last-child {
+      margin-bottom: 0;
+    }
+
+    .row-label .text-block {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .row-label .main-label {
+      display: block;
+      font-size: 14px;
+      color: var(--text-title);
+      font-weight: 500;
+    }
+
+    .main-label--with-vip {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .vip-label-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: #c9a962;
+      border-radius: 5px;
+    }
+
+    .row-label .sub-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    .checkbox {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      background: #fff;
+      position: relative;
+    }
+
+    .checkbox:checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .checkbox:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .checkbox:focus-visible {
+      outline: 2px solid rgba(22, 119, 255, 0.35);
+      outline-offset: 2px;
+    }
+
+    .checkbox:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .field {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: var(--text-title);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+    }
+
+    .field:disabled {
+      background: #f5f5f5;
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .nested {
+      margin-left: 26px;
+      padding-left: 12px;
+      border-left: 2px solid #f0f0f0;
+      margin-top: 8px;
+    }
+
+    .nested-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .option-row:first-child {
+      margin-top: 0;
+    }
+
+    .option-row label {
+      font-size: 13px;
+      color: var(--text-body);
+      line-height: 1.5;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .preview-label {
+      font-size: 14px;
+      color: var(--text-title);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .preview-box {
+      width: 100%;
+      height: 200px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .preview-box canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .opacity-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .opacity-row .opacity-label {
+      font-size: 14px;
+      color: var(--text-title);
+      flex-shrink: 0;
+    }
+
+    .slider-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      appearance: none;
+      background: linear-gradient(
+        to right,
+        var(--primary) 0%,
+        var(--primary) var(--pct, 15%),
+        #e8e8e8 var(--pct, 15%),
+        #e8e8e8 100%
+      );
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--primary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      cursor: grab;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--primary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      cursor: grab;
+    }
+
+    .opacity-value {
+      font-size: 14px;
+      color: var(--text-body);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn {
+      padding: 6px 18px;
+      font-size: 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .btn-default {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text-title);
+    }
+
+    .btn-default:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .checkout-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 400;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .checkout-backdrop.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .checkout-modal {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+      padding: 20px 22px 18px;
+      position: relative;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+    }
+
+    .checkout-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .checkout-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-title);
+    }
+
+    .checkout-sub {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .checkout-product {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: linear-gradient(135deg, #fffbf0 0%, #fff8e6 100%);
+      border: 1px solid rgba(212, 160, 18, 0.35);
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+    }
+
+    .checkout-vip-tag {
+      flex-shrink: 0;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #e8b020 0%, #c99000 100%);
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .checkout-product-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-title);
+      margin-bottom: 4px;
+    }
+
+    .checkout-product-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .checkout-price {
+      margin-left: auto;
+      text-align: right;
+      flex-shrink: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #c99000;
+    }
+
+    .checkout-price .currency {
+      font-size: 14px;
+      font-weight: 600;
+      margin-right: 2px;
+    }
+
+    .checkout-price .period {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .checkout-section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-body);
+      margin-bottom: 10px;
+    }
+
+    .pay-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .pay-method {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-title);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .pay-method:hover {
+      border-color: #91caff;
+      background: #f0f9ff;
+    }
+
+    .pay-method:has(input:checked) {
+      border-color: var(--primary);
+      background: #e6f4ff;
+    }
+
+    .pay-method input {
+      margin: 0;
+      accent-color: var(--primary);
+    }
+
+    .checkout-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .checkout-pay-btn {
+      background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+      border-color: transparent;
+      color: #fff;
+      padding: 8px 22px;
+    }
+
+    .checkout-pay-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .checkout-hint {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(0, 0, 0, 0.78);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      z-index: 500;
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .hidden-block {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-actions">
+    <button type="button" class="btn-open" id="btnReopen">打开水印设置</button>
+  </div>
+
+  <div class="backdrop" id="backdrop" role="presentation">
+    <div class="modal" role="dialog" aria-labelledby="dialogTitle" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="modal-title" id="dialogTitle">设置水印</h2>
+        <button type="button" class="btn-icon" id="btnClose" aria-label="关闭">×</button>
+      </div>
+
+      <!-- 水印内容 -->
+      <div class="section">
+        <h3 class="section-title">水印内容</h3>
+
+        <div class="row-label">
+          <input type="checkbox" class="checkbox" id="enableText" checked />
+          <div class="text-block">
+            <label class="main-label" for="enableText">文字水印</label>
+            <span class="sub-label">自定义固定文案，适用于品牌曝光</span>
+          </div>
+        </div>
+        <input
+          type="text"
+          class="field"
+          id="watermarkText"
+          value="个人账户0050"
+          placeholder="请输入水印文字"
+          autocomplete="off"
+        />
+
+        <div class="row-label" style="margin-top: 14px">
+          <input type="checkbox" class="checkbox" id="enableDynamic" />
+          <div class="text-block">
+            <label class="main-label main-label--with-vip" for="enableDynamic">
+              动态水印
+              <span class="vip-label-badge" title="VIP 会员标识" aria-label="VIP 标识">VIP</span>
+            </label>
+            <span class="sub-label">根据身份与场景自动生成；可与文字水印同时启用</span>
+          </div>
+        </div>
+        <div class="nested">
+          <div class="nested-title">包含字段（可多选）</div>
+          <div class="option-row">
+            <input type="checkbox" class="checkbox" id="dynWpsId" />
+            <label for="dynWpsId">WPS ID 后缀</label>
+          </div>
+          <div class="option-row">
+            <input type="checkbox" class="checkbox" id="dynPhone" />
+            <label for="dynPhone">手机号</label>
+          </div>
+          <div class="option-row">
+            <input type="checkbox" class="checkbox" id="dynOpenTime" />
+            <label for="dynOpenTime">打开文档时间</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 应用范围 -->
+      <div class="section">
+        <div class="section-title-row">
+          <h3 class="section-title">应用范围</h3>
+          <span class="help-tip-wrap">
+            <button type="button" class="help-tip-btn" aria-describedby="scopeFileTypesTip">
+              ?
+            </button>
+            <span id="scopeFileTypesTip" class="help-tip-text" role="tooltip">
+              支持的文件类型：文字/表格/演示/pdf/智能文档/智能表格
+            </span>
+          </span>
+        </div>
+        <div class="option-row">
+          <input type="checkbox" class="checkbox" id="scopeLockSave" />
+          <label for="scopeLockSave">他人另存后，水印保留且不可更改</label>
+        </div>
+        <div class="option-row">
+          <input type="checkbox" class="checkbox" id="scopePrint" />
+          <label for="scopePrint">打印时保留水印</label>
+        </div>
+        <div class="option-row">
+          <input type="checkbox" class="checkbox" id="scopeExport" />
+          <label for="scopeExport">导出时保留水印</label>
+        </div>
+      </div>
+
+      <!-- 效果预览 -->
+      <div class="section">
+        <div class="preview-label">效果预览</div>
+        <div class="preview-box">
+          <canvas id="previewCanvas" width="480" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="opacity-row">
+          <span class="opacity-label">透明度</span>
+          <div class="slider-wrap">
+            <input type="range" id="opacitySlider" min="5" max="80" value="15" />
+            <span class="opacity-value" id="opacityValue">15%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="option-row" style="margin-top: 0">
+          <input type="checkbox" class="checkbox" id="hideForSelf" />
+          <label for="hideForSelf">对自己隐藏水印</label>
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="btn btn-default" id="btnCancel">取消</button>
+          <button type="button" class="btn btn-primary" id="btnConfirm">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <!-- 会员收银台（勾选动态水印 VIP 后确认时弹出） -->
+  <div class="checkout-backdrop hidden" id="checkoutBackdrop" role="presentation">
+    <div
+      class="checkout-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="checkoutTitle"
+    >
+      <div class="checkout-header">
+        <h2 class="checkout-title" id="checkoutTitle">收银台</h2>
+        <button type="button" class="btn-icon" id="checkoutBtnClose" aria-label="关闭收银台">
+          ×
+        </button>
+      </div>
+      <p class="checkout-sub">开通会员以使用「动态水印（VIP）」及相关权益</p>
+      <div class="checkout-product">
+        <span class="checkout-vip-tag" aria-hidden="true">VIP</span>
+        <div style="min-width: 0">
+          <div class="checkout-product-name">WPS 会员 · 水印增强（演示商品）</div>
+          <div class="checkout-product-desc">含动态身份水印、可追溯字段展示等能力</div>
+        </div>
+        <div class="checkout-price">
+          <span class="currency">¥</span>29<span class="period">/月</span>
+        </div>
+      </div>
+      <div class="checkout-section-label">支付方式</div>
+      <div class="pay-methods">
+        <label class="pay-method">
+          <input type="radio" name="payMethod" value="wechat" checked />
+          <span>微信支付</span>
+        </label>
+        <label class="pay-method">
+          <input type="radio" name="payMethod" value="alipay" />
+          <span>支付宝</span>
+        </label>
+      </div>
+      <div class="checkout-actions">
+        <button type="button" class="btn btn-default" id="checkoutBtnBack">返回修改</button>
+        <button type="button" class="btn checkout-pay-btn" id="checkoutBtnPay">立即支付</button>
+      </div>
+      <p class="checkout-hint">
+        演示环境：点击「立即支付」将模拟支付成功，并保存水印设置、关闭弹窗。
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var backdrop = document.getElementById("backdrop");
+      var btnClose = document.getElementById("btnClose");
+      var btnCancel = document.getElementById("btnCancel");
+      var btnConfirm = document.getElementById("btnConfirm");
+      var btnReopen = document.getElementById("btnReopen");
+      var canvas = document.getElementById("previewCanvas");
+      var ctx = canvas.getContext("2d");
+      var textInput = document.getElementById("watermarkText");
+      var enableText = document.getElementById("enableText");
+      var enableDynamic = document.getElementById("enableDynamic");
+      var opacitySlider = document.getElementById("opacitySlider");
+      var opacityValue = document.getElementById("opacityValue");
+      var dynWpsId = document.getElementById("dynWpsId");
+      var dynPhone = document.getElementById("dynPhone");
+      var dynOpenTime = document.getElementById("dynOpenTime");
+      var hideForSelf = document.getElementById("hideForSelf");
+      var toast = document.getElementById("toast");
+      var checkoutBackdrop = document.getElementById("checkoutBackdrop");
+      var checkoutBtnClose = document.getElementById("checkoutBtnClose");
+      var checkoutBtnBack = document.getElementById("checkoutBtnBack");
+      var checkoutBtnPay = document.getElementById("checkoutBtnPay");
+      var pendingPayload = null;
+
+      function pad2(n) {
+        return (n < 10 ? "0" : "") + n;
+      }
+
+      function formatOpenTime(d) {
+        return (
+          d.getFullYear() +
+          "-" +
+          pad2(d.getMonth() + 1) +
+          "-" +
+          pad2(d.getDate()) +
+          " " +
+          pad2(d.getHours()) +
+          ":" +
+          pad2(d.getMinutes())
+        );
+      }
+
+      function getDynamicPreviewLines() {
+        var parts = [];
+        if (dynWpsId.checked) parts.push("WPS ID …0050");
+        if (dynPhone.checked) parts.push("138****5678");
+        if (dynOpenTime.checked) parts.push("打开 " + formatOpenTime(new Date()));
+        return parts;
+      }
+
+      function getDynamicTileText() {
+        var lines = getDynamicPreviewLines();
+        if (lines.length === 0) return "VIP · 请选择至少一项字段";
+        return "VIP · " + lines.join(" · ");
+      }
+
+      function resizeCanvas() {
+        var box = canvas.parentElement;
+        var w = box.clientWidth;
+        var h = box.clientHeight;
+        if (w < 1 || h < 1) return;
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawPreview();
+      }
+
+      function drawPreview() {
+        var w = canvas.parentElement.clientWidth;
+        var h = canvas.parentElement.clientHeight;
+        var alpha = parseInt(opacitySlider.value, 10) / 100;
+
+        ctx.save();
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#fafafa";
+        ctx.fillRect(0, 0, w, h);
+
+        var hasText = enableText.checked;
+        var hasDynamic = enableDynamic.checked;
+        if (!hasText && !hasDynamic) {
+          ctx.font = '13px -apple-system, "PingFang SC", sans-serif';
+          ctx.fillStyle = "#bfbfbf";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("请至少勾选一种水印内容", w / 2, h / 2);
+          ctx.restore();
+          return;
+        }
+
+        function drawTiledLayer(tileText, isGold, ox, oy) {
+          var fontSize = tileText.length > 46 ? 11 : 13;
+          ctx.save();
+          ctx.translate(w / 2 + ox, h / 2 + oy);
+          ctx.rotate((-38 * Math.PI) / 180);
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.font =
+            "600 " +
+            fontSize +
+            'px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+          if (isGold && getDynamicPreviewLines().length > 0) {
+            ctx.fillStyle = "rgba(212, 160, 18, " + Math.min(1, alpha * 1.08) + ")";
+          } else if (isGold) {
+            ctx.fillStyle = "rgba(212, 160, 18, " + alpha + ")";
+          } else {
+            ctx.fillStyle = "rgba(51, 51, 51, " + alpha + ")";
+          }
+          var stepX = Math.max(200, tileText.length * (fontSize * 0.55));
+          var stepY = isGold ? 88 : 72;
+          for (var y = -h * 2; y <= h * 2; y += stepY) {
+            for (var x = -w * 2; x <= w * 2; x += stepX) {
+              ctx.fillText(tileText, x, y);
+            }
+          }
+          ctx.restore();
+        }
+
+        if (hasText) {
+          var tileText = (textInput.value || "").trim() || "个人账户0050";
+          var off = hasDynamic ? Math.round(tileText.length * 2.2) : 0;
+          drawTiledLayer(tileText, false, hasDynamic ? -off : 0, hasDynamic ? off * 0.4 : 0);
+        }
+
+        if (hasDynamic) {
+          var dynTile = getDynamicTileText();
+          var off2 = hasText ? 56 : 0;
+          drawTiledLayer(dynTile, true, hasText ? off2 : 0, hasText ? -off2 * 0.35 : 0);
+        }
+
+        if (hasDynamic) {
+          ctx.save();
+          ctx.font = '600 10px -apple-system, "PingFang SC", sans-serif';
+          var bw = ctx.measureText("VIP").width + 10;
+          ctx.fillStyle = "rgba(212, 160, 18, " + Math.min(1, 0.55 + alpha * 0.45) + ")";
+          roundRect(ctx, w - bw - 10, 10, bw, 20, 4);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("VIP", w - 10 - bw / 2, 20);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      function roundRect(context, x, y, width, height, r) {
+        context.beginPath();
+        context.moveTo(x + r, y);
+        context.arcTo(x + width, y, x + width, y + height, r);
+        context.arcTo(x + width, y + height, x, y + height, r);
+        context.arcTo(x, y + height, x, y, r);
+        context.arcTo(x, y, x + width, y, r);
+        context.closePath();
+      }
+
+      function updateSliderTrack() {
+        var min = parseFloat(opacitySlider.min);
+        var max = parseFloat(opacitySlider.max);
+        var val = parseFloat(opacitySlider.value);
+        var pct = ((val - min) / (max - min)) * 100;
+        opacitySlider.style.setProperty("--pct", pct + "%");
+        opacityValue.textContent = Math.round(val) + "%";
+      }
+
+      function syncModeUi() {
+        textInput.disabled = !enableText.checked;
+        dynWpsId.disabled = !enableDynamic.checked;
+        dynPhone.disabled = !enableDynamic.checked;
+        dynOpenTime.disabled = !enableDynamic.checked;
+      }
+
+      function closeModal() {
+        backdrop.classList.add("hidden");
+      }
+
+      function openModal() {
+        backdrop.classList.remove("hidden");
+        syncModeUi();
+        if (enableText.checked) textInput.focus();
+        resizeCanvas();
+      }
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(function () {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      function buildPayload() {
+        return {
+          watermarkContent: {
+            textWatermark: {
+              enabled: enableText.checked,
+              text: textInput.value.trim(),
+            },
+            dynamicVip: {
+              enabled: enableDynamic.checked,
+              fields: {
+                wpsIdSuffix: dynWpsId.checked,
+                phone: dynPhone.checked,
+                openDocumentTime: dynOpenTime.checked,
+              },
+            },
+          },
+          opacityPercent: parseInt(opacitySlider.value, 10),
+          applyScope: {
+            lockOnOthersSave: document.getElementById("scopeLockSave").checked,
+            retainOnPrint: document.getElementById("scopePrint").checked,
+            retainOnExport: document.getElementById("scopeExport").checked,
+          },
+          hideForSelf: hideForSelf.checked,
+        };
+      }
+
+      function openCheckout(payload) {
+        pendingPayload = payload;
+        checkoutBackdrop.classList.remove("hidden");
+        checkoutBtnPay.focus();
+      }
+
+      function closeCheckout() {
+        checkoutBackdrop.classList.add("hidden");
+        pendingPayload = null;
+      }
+
+      function finishSaveAndClose() {
+        showToast("已保存水印设置（演示）");
+        closeModal();
+      }
+
+      function onContentToggle() {
+        syncModeUi();
+        drawPreview();
+      }
+
+      opacitySlider.addEventListener("input", function () {
+        updateSliderTrack();
+        drawPreview();
+      });
+
+      enableText.addEventListener("change", onContentToggle);
+      enableDynamic.addEventListener("change", onContentToggle);
+      textInput.addEventListener("input", drawPreview);
+      dynWpsId.addEventListener("change", drawPreview);
+      dynPhone.addEventListener("change", drawPreview);
+      dynOpenTime.addEventListener("change", drawPreview);
+
+      btnClose.addEventListener("click", closeModal);
+      btnCancel.addEventListener("click", closeModal);
+      btnConfirm.addEventListener("click", function () {
+        var payload = buildPayload();
+        console.log("Watermark settings:", payload);
+        if (enableDynamic.checked) {
+          openCheckout(payload);
+        } else {
+          finishSaveAndClose();
+        }
+      });
+
+      checkoutBtnClose.addEventListener("click", closeCheckout);
+      checkoutBtnBack.addEventListener("click", closeCheckout);
+      checkoutBtnPay.addEventListener("click", function () {
+        var method = document.querySelector('input[name="payMethod"]:checked');
+        console.log("Payment success (demo)", {
+          payload: pendingPayload,
+          payMethod: method ? method.value : null,
+        });
+        closeCheckout();
+        finishSaveAndClose();
+      });
+
+      checkoutBackdrop.addEventListener("click", function (e) {
+        if (e.target === checkoutBackdrop) closeCheckout();
+      });
+
+      btnReopen.addEventListener("click", openModal);
+
+      backdrop.addEventListener("click", function (e) {
+        if (e.target === backdrop) closeModal();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        if (!checkoutBackdrop.classList.contains("hidden")) {
+          closeCheckout();
+          e.preventDefault();
+          return;
+        }
+        if (!backdrop.classList.contains("hidden")) {
+          closeModal();
+        }
+      });
+
+      window.addEventListener("resize", resizeCanvas);
+
+      updateSliderTrack();
+      syncModeUi();
+      resizeCanvas();
+
+      setInterval(function () {
+        if (
+          !backdrop.classList.contains("hidden") &&
+          enableDynamic.checked &&
+          dynOpenTime.checked
+        ) {
+          drawPreview();
+        }
+      }, 60000);
+    })();
+  </script>
+</body>
+</html>
