@@ -1,0 +1,602 @@
+{
+  "ID": "d063e13arp61nho53p70",
+  "CreateUserID": 10023,
+  "UpdateUserID": 10023,
+  "CreatedAt": "2025-04-26T01:29:41Z",
+  "UpdatedAt": "2025-04-26T03:24:56Z",
+  "DeletedAt": null,
+  "TenantID": "1000000005",
+  "WorkspaceID": "personal-10023",
+  "Name": "中英转换",
+  "Description": "转换",
+  "Status": "Published",
+  "RuntimeStatus": "Failed",
+  "Icon": {
+    "Path": "upload/full/a8/bc/fa4cb109cb3bab2220c56cb67ac1e6bf6542ff8daadb60b2b594dbf6f964",
+    "ID": "d063e13arp61nho53p6g",
+    "Sha256": "a8bcfa4cb109cb3bab2220c56cb67ac1e6bf6542ff8daadb60b2b594dbf6f964",
+    "Size": 75109
+  },
+  "Hash": "51d0e43bba71cffda8f6be9ebd050e93",
+  "LastHash": "7772da818f88b5502383c11d4376e916",
+  "Nodes": [
+    {
+      "ID": "d063e13arp61nho53p7g",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T01:29:41Z",
+      "UpdatedAt": "2025-04-26T01:50:54Z",
+      "DeletedAt": null,
+      "Type": "Start",
+      "Name": "Start",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "Layout": {
+        "X": 100,
+        "Y": 200
+      },
+      "StartConfig": {
+        "InputSchema": [
+          {
+            "Name": "i",
+            "Desc": "用户输入",
+            "Required": true,
+            "Type": 0
+          }
+        ],
+        "OutputSchema": [
+          {
+            "Name": "i",
+            "Desc": "用户输入",
+            "Required": true,
+            "Type": 0
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d063e13arp61nho53p80",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T01:29:41Z",
+      "UpdatedAt": "2025-04-26T02:51:54Z",
+      "DeletedAt": null,
+      "Type": "End",
+      "Name": "End",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "Layout": {
+        "X": 4612.2393750529,
+        "Y": 220.8203572343
+      },
+      "Depends": [
+        {
+          "NodeID": "d064hnrarp61nho669s0",
+          "PortID": "if01"
+        },
+        {
+          "NodeID": "d064ibjarp61nho66kgg"
+        }
+      ],
+      "EndConfig": {
+        "InputVariables": [
+          {
+            "Type": "Reference",
+            "Name": "output",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d063sdrsinkm501djv10",
+                "OutputFieldPath": "回答问题.raw_output"
+              }
+            }
+          },
+          {
+            "Type": "Reference",
+            "Name": "output1",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d064ibjarp61nho66kgg",
+                "OutputFieldPath": "大模型01.raw_output"
+              }
+            }
+          }
+        ],
+        "OutputType": "Variable",
+        "OutputSchema": [
+          {
+            "Name": "output",
+            "Type": -1
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d063k8l5ipli2163fr40",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T01:42:59Z",
+      "UpdatedAt": "2025-04-26T02:31:25Z",
+      "DeletedAt": null,
+      "Type": "LLM",
+      "Name": "翻译",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 730.7113673236,
+        "Y": 92.0187247043
+      },
+      "Depends": [
+        {
+          "NodeID": "d063e13arp61nho53p7g"
+        }
+      ],
+      "LLMConfig": {
+        "ModelID": "d0452ubarp61nho36mog",
+        "Temperature": 0.7,
+        "TopP": 0.5,
+        "MaxTokens": 256,
+        "InputVariables": [
+          {
+            "Type": "Reference",
+            "Name": "i",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d063e13arp61nho53p7g",
+                "OutputFieldPath": "Start.i"
+              }
+            }
+          }
+        ],
+        "Prompt": "# 角色(Role)：\n中译英\n##技能：\n将用户输入从中文翻译为英文作为输出\n用户输入：{{i}}",
+        "OutputFormat": "text",
+        "OutputSchema": [
+          {
+            "Name": "raw_output",
+            "Type": 0
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d063sdrsinkm501djv10",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:00:24Z",
+      "UpdatedAt": "2025-04-26T03:24:46Z",
+      "DeletedAt": null,
+      "Type": "LLM",
+      "Name": "回答问题",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 3308.1784714643,
+        "Y": -9.4595147482
+      },
+      "Depends": [
+        {
+          "NodeID": "d063k8l5ipli2163fr40"
+        },
+        {
+          "NodeID": "d064ac3sinkos4gco890",
+          "PortID": "else"
+        },
+        {
+          "NodeID": "d064evbsinkokpn2m5l0"
+        }
+      ],
+      "LLMConfig": {
+        "ModelID": "d0452ubarp61nho36mog",
+        "Temperature": 0.7,
+        "TopP": 0.5,
+        "MaxTokens": 256,
+        "InputVariables": [
+          {
+            "Type": "Reference",
+            "Name": "input",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d063k8l5ipli2163fr40",
+                "OutputFieldPath": "翻译.raw_output"
+              }
+            }
+          },
+          {
+            "Type": "Reference",
+            "Name": "qur",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d0644ljarp61nho5q6fg",
+                "OutputFieldPath": "知识库01.outputList[0].output"
+              }
+            }
+          },
+          {
+            "Type": "Reference",
+            "Name": "select",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d064evbsinkokpn2m5l0",
+                "OutputFieldPath": "插件01.result"
+              }
+            }
+          }
+        ],
+        "Prompt": "# 角色(Role)\n你是一个智能阅读助手，致力于帮助读者更好地进行阅读活动。\n\n# 限制(Constraint)：\n当出现选择题时，题目可能是单选，也可能是多选，只输出选择序号即可，且只输出选择序号。多选题直接输出“AB,AC,BC,ABC”即可。\n\n#输入内容：\n用户输入：{{input}}\n知识库​​：{{qur}}\n数据库返回结果：{{select}}",
+        "OutputFormat": "text",
+        "OutputSchema": [
+          {
+            "Name": "raw_output",
+            "Type": 0
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d0644ljarp61nho5q6fg",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:17:58Z",
+      "UpdatedAt": "2025-04-26T03:15:59Z",
+      "DeletedAt": null,
+      "Type": "Knowledge",
+      "Name": "知识库01",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 1176.4602170498,
+        "Y": 603.4175336292
+      },
+      "Depends": [
+        {
+          "NodeID": "d063k8l5ipli2163fr40"
+        }
+      ],
+      "KnowledgeConfig": {
+        "QueryVariable": {
+          "Type": "Reference",
+          "Name": "query",
+          "ValueFrom": {
+            "OutputRef": {
+              "NodeID": "d063k8l5ipli2163fr40",
+              "OutputFieldPath": "翻译.raw_output"
+            }
+          }
+        },
+        "KnowledgeRange": [
+          "01967010-bd73-7a01-8ef9-2e8509d7a54a"
+        ],
+        "OutputSchema": [
+          {
+            "Name": "outputList",
+            "Required": true,
+            "Type": 9,
+            "SubParameters": [
+              {
+                "Name": "output",
+                "Required": true,
+                "Type": 0
+              },
+              {
+                "Name": "metadata",
+                "Required": true,
+                "Type": 4,
+                "SubParameters": [
+                  {
+                    "Name": "score",
+                    "Required": true,
+                    "Type": 3
+                  },
+                  {
+                    "Name": "dataset_id",
+                    "Required": true,
+                    "Type": 0
+                  },
+                  {
+                    "Name": "segment_id",
+                    "Required": true,
+                    "Type": 0
+                  },
+                  {
+                    "Name": "document_id",
+                    "Required": true,
+                    "Type": 0
+                  },
+                  {
+                    "Name": "dataset_name",
+                    "Required": true,
+                    "Type": 0
+                  },
+                  {
+                    "Name": "document_url",
+                    "Type": 0
+                  },
+                  {
+                    "Name": "document_name",
+                    "Required": true,
+                    "Type": 0
+                  },
+                  {
+                    "Name": "document_type",
+                    "Type": 1
+                  },
+                  {
+                    "Name": "document_obs_url",
+                    "Type": 0
+                  },
+                  {
+                    "Name": "document_file_type",
+                    "Type": 1
+                  },
+                  {
+                    "Name": "orientations",
+                    "Type": 9,
+                    "SubParameters": [
+                      {
+                        "Name": "page_number",
+                        "Required": true,
+                        "Type": 1
+                      },
+                      {
+                        "Name": "rects",
+                        "Required": true,
+                        "Type": 8
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "TopK": 2,
+        "ScoreThreshold": 0.8,
+        "RerankID": null,
+        "RetrievalSearchMethod": 0,
+        "Expand": false,
+        "ExpandNum": null
+      }
+    },
+    {
+      "ID": "d064ac3sinkos4gco890",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:30:08Z",
+      "UpdatedAt": "2025-04-26T03:24:51Z",
+      "DeletedAt": null,
+      "Type": "Condition",
+      "Name": "选择器01",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 1712.5159218175,
+        "Y": 812.3698482021
+      },
+      "Depends": [
+        {
+          "NodeID": "d0644ljarp61nho5q6fg"
+        }
+      ],
+      "ConditionConfig": {
+        "IfBranches": [
+          {
+            "ID": "if01",
+            "Conditions": [
+              {
+                "Left": {
+                  "Type": "",
+                  "Name": "Left",
+                  "ValueFrom": {
+                    "OutputRef": {
+                      "NodeID": "d0644ljarp61nho5q6fg",
+                      "OutputFieldPath": "知识库01.outputList[0].output"
+                    }
+                  }
+                },
+                "Operator": "EMPTY",
+                "Right": {
+                  "Type": "Reference",
+                  "Name": "Right"
+                }
+              }
+            ],
+            "ConditionLogic": "AND"
+          }
+        ],
+        "ElseBranch": {
+          "ID": "else"
+        }
+      }
+    },
+    {
+      "ID": "d064esbarp61nho63ti0",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:39:46Z",
+      "UpdatedAt": "2025-04-26T02:51:39Z",
+      "DeletedAt": null,
+      "Type": "Database",
+      "Name": "数据库01",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 2322.4203992907,
+        "Y": -495.0952127186
+      },
+      "Depends": [
+        {
+          "NodeID": "d064ac3sinkos4gco890",
+          "PortID": "if01"
+        }
+      ],
+      "DatabaseConfig": {
+        "QueryVariable": {
+          "Type": "Reference",
+          "Name": "query",
+          "ValueFrom": {
+            "OutputRef": {
+              "NodeID": "d063k8l5ipli2163fr40",
+              "OutputFieldPath": "翻译.raw_output"
+            }
+          }
+        },
+        "DatabaseID": "d0515a55ipli2161useg",
+        "ModelID": "d0452ubarp61nho36mog",
+        "Temperature": 0.7,
+        "TopP": 0.5,
+        "MaxTokens": 256,
+        "Prompt": "查找出全部相关联的信息",
+        "RetryTimes": 3,
+        "OutputSchema": [
+          {
+            "Name": "query_result",
+            "Required": true,
+            "Type": 0
+          },
+          {
+            "Name": "sql_statement",
+            "Required": true,
+            "Type": 0
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d064evbsinkokpn2m5l0",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:39:58Z",
+      "UpdatedAt": "2025-04-26T02:51:43Z",
+      "DeletedAt": null,
+      "Type": "Tool",
+      "Name": "插件01",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 2820.7814491916,
+        "Y": -495.9871742178
+      },
+      "Depends": [
+        {
+          "NodeID": "d064esbarp61nho63ti0"
+        }
+      ],
+      "ToolConfig": {
+        "ToolID": "b6e3fae99o8kaosss71g",
+        "InputVariables": [
+          {
+            "Type": "Input",
+            "Name": "dsn",
+            "StringValue": "mysql://lanqiao:JRemizRCwKZqPAGvDmiV28Q@mysql38ab0bc01cc2.rds.ivolces.com/lqb_ss_books"
+          },
+          {
+            "Type": "Reference",
+            "Name": "query",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d064esbarp61nho63ti0",
+                "OutputFieldPath": "数据库01.sql_statement"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d064hnrarp61nho669s0",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:45:51Z",
+      "UpdatedAt": "2025-04-26T02:51:48Z",
+      "DeletedAt": null,
+      "Type": "Condition",
+      "Name": "选择器02",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 3769.784816924,
+        "Y": -514.2159788184
+      },
+      "Depends": [
+        {
+          "NodeID": "d063sdrsinkm501djv10"
+        }
+      ],
+      "ConditionConfig": {
+        "IfBranches": [
+          {
+            "ID": "if01",
+            "Conditions": [
+              {
+                "Left": {
+                  "Type": "",
+                  "Name": "Left",
+                  "ValueFrom": {
+                    "OutputRef": {
+                      "NodeID": "d063sdrsinkm501djv10",
+                      "OutputFieldPath": "回答问题.raw_output"
+                    }
+                  }
+                },
+                "Operator": "IN",
+                "Right": {
+                  "Type": "Input",
+                  "Name": "Right",
+                  "StringValue": "ABCD"
+                }
+              }
+            ],
+            "ConditionLogic": "AND"
+          }
+        ],
+        "ElseBranch": {
+          "ID": "else"
+        }
+      }
+    },
+    {
+      "ID": "d064ibjarp61nho66kgg",
+      "CreateUserID": 10023,
+      "UpdateUserID": 10023,
+      "CreatedAt": "2025-04-26T02:47:11Z",
+      "UpdatedAt": "2025-04-26T02:51:51Z",
+      "DeletedAt": null,
+      "Type": "LLM",
+      "Name": "大模型01",
+      "WorkflowID": "d063e13arp61nho53p70",
+      "LoopNodeID": "",
+      "Layout": {
+        "X": 3805.6825834079,
+        "Y": 729.1385102924
+      },
+      "Depends": [
+        {
+          "NodeID": "d063sdrsinkm501djv10"
+        }
+      ],
+      "LLMConfig": {
+        "ModelID": "d0452ubarp61nho36mog",
+        "Temperature": 0.7,
+        "TopP": 0.5,
+        "MaxTokens": 256,
+        "InputVariables": [
+          {
+            "Type": "Reference",
+            "Name": "input",
+            "ValueFrom": {
+              "OutputRef": {
+                "NodeID": "d063e13arp61nho53p7g",
+                "OutputFieldPath": "Start.i"
+              }
+            }
+          }
+        ],
+        "Prompt": "# 角色(Role)\n你是一个智能阅读助手，致力于帮助读者更好地进行阅读活动。\n\n# 限制(Constraint)：\n当出现选择题时，题目可能是单选，也可能是多选，只输出选择序号即可，且只输出选择序号。多选题直接输出“AB,AC,BC,ABC”即可。",
+        "OutputFormat": "text",
+        "OutputSchema": [
+          {
+            "Name": "raw_output",
+            "Type": 0
+          }
+        ]
+      }
+    }
+  ]
+}
